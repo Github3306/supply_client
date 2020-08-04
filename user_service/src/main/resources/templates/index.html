@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>跨域测试</title>
+
+    <script typet="text/javascript" src="../js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            // alert("111111");
+            $("#btn").click(function () {
+                $.ajax({
+                    type: "get",
+                    dataType: "json",
+                    url: "http://localhost:9000/gate/prod/goods/"+$("#goodsId").val(),
+                    success: function (data) {
+                        console.log(data)
+                    }
+                })
+            })
+        })
+    </script>
+</head>
+<body>
+    商品id：<input type="text" id="goodsId"/>
+    <button id="btn">获取商品信息</button>
+</body>
+</html>

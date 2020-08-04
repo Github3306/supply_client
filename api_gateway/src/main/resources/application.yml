@@ -1,0 +1,27 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: api-gateway
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:10086/eureka/
+
+zuul:
+  routes:
+    product-service: /gate/prod/**
+    order-service: /gate/order/**
+    user-service: /gate/user/**
+    redis-service: /gate/redis/**
+    sendorders-service: /gate/sendorders/**
+
+  host:
+    connect-timeout-millis: 60000 #http连接超时
+    socket-timeout-millis: 60000 #socket连接超时
+
+ribbon:
+  ReadTimeout: 60000
+  SocketTimeout: 60000

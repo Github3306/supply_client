@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qtu.product_service.mapper.LogisticsMapper">
+
+    <resultMap id="LogisticsListMap" type="com.qtu.product_service.entity.LogisticsBean">
+        <!--bm_inorderlist表-->
+        <id column="orderId" jdbcType="VARCHAR" property="orderId" />
+        <result column="sellerId" jdbcType="INTEGER" property="sellerId" />
+        <result column="deliveryFee" jdbcType="DECIMAL" property="deliveryFee" />
+        <result column="amount" jdbcType="DECIMAL" property="amount" />
+        <result column="payType" jdbcType="INTEGER" property="payType" />
+        <result column="orderStep" jdbcType="INTEGER" property="orderStep" />
+        <result column="deliveryAddId" jdbcType="VARCHAR" property="deliveryAddId" />
+        <result column="createTime" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="payTime" jdbcType="TIMESTAMP" property="payTime" />
+        <result column="orderState" jdbcType="INTEGER" property="orderState" />
+        <result column="warehouserId" jdbcType="INTEGER" property="warehouserId" />
+        <result column="logisticsId" jdbcType="INTEGER" property="logisticsId" />
+        <result column="mark" jdbcType="VARCHAR" property="mark" />
+        <result column="endTime" jdbcType="TIMESTAMP" property="endTime" />
+
+        <!--bm_inordergoodslist表-->
+        <result column="goodsId" jdbcType="INTEGER" property="goodsId" />
+        <result column="spId" jdbcType="INTEGER" property="spId" />
+        <result column="sname" jdbcType="VARCHAR" property="sname" />
+        <result column="goodsName" jdbcType="VARCHAR" property="goodsName" />
+        <result column="goodsImg" jdbcType="VARCHAR" property="goodsImg" />
+        <result column="buyNum" jdbcType="INTEGER" property="buyNum" />
+        <result column="price" jdbcType="DECIMAL" property="price" />
+        <result column="pickingNum" jdbcType="INTEGER" property="pickingNum" />
+        <result column="loadingNum" jdbcType="INTEGER" property="loadingNum" />
+        <result column="examineNum" jdbcType="INTEGER" property="examineNum" />
+        <result column="deliveryNum" jdbcType="INTEGER" property="deliveryNum" />
+
+        <!--bm_address表-->
+        <result column="contacter" property="contacter" jdbcType="VARCHAR" />
+        <result column="tel" property="tel" jdbcType="VARCHAR" />
+        <result column="mainAddress" property="mainAddress" jdbcType="VARCHAR" />
+        <result column="address" property="address" jdbcType="VARCHAR" />
+
+    </resultMap>
+
+    <!--bm_inorderlist表-->
+    <sql id="inorderlist">
+    orderlist.orderId orderId, orderlist.sellerId sellerId, orderlist.deliveryFee deliveryFee, orderlist.amount amount,
+    orderlist.payType payType, orderlist.orderStep orderStep, orderlist.deliveryAddId deliveryAddId, orderlist.createTime createTime,
+    orderlist.payTime payTime, orderlist.orderState orderState, orderlist.warehouserId warehouserId,
+    orderlist.logisticsId logisticsId, orderlist.mark mark, orderlist.endTime endTime
+    </sql>
+
+    <!--bm_inordergoodslist表-->
+    <sql id="inordergoodslist">
+    goodsId, spId, sname, goodsName, goodsImg, sum(ordergoodslist.buyNum) buyNum,price,
+    sum(ordergoodslist.price*ordergoodslist.buyNum) totalPrice, pickingNum,loadingNum, examineNum, deliveryNum
+    </sql>
+
+    <!--bm_address表-->
+    <sql id="address" >
+    address.contacter contacter, address.tel tel, address.mainAddress mainAddress, address.address address
+    </sql>
+
+    <!--根据订单id查询订单的物流信息的sql片段-->
+    <sql id="logisticsInfoByOIdList">
+        ordergoodslist.id id,ordergoodslist.goodsId goodsId,ordergoodslist.spId spId,ordergoodslist.orderId orderId,
+        ordergoodslist.goodsName goodsName,ordergoodslist.goodsImg goodsImg,ordergoodslist.sname sname,
+        goods.warehouseCode warehouseCode,orderlist.orderStep orderStep,orderlist.logisticsId logisticsId
+    </sql>
+
+    <!--根据状态码查询状态所对应的物流信息-->
+    <select id="selectLogisticsStatus" resultMap="LogisticsListMap" parameterType="java.lang.Integer">
+        select <include refid="inorderlist"/>,<include refid="inordergoodslist"/>,<include refid="address"/>
+        from bm_inordergoodslist ordergoodslist
+        left join bm_inorderlist orderlist on orderlist.orderId=ordergoodslist.orderId
+        left join bm_address address on address.addId=orderlist.deliveryAddId
+        left join sys_employee emp on emp.id=orderlist.logisticsId
+        <where>
+            <choose>
+                <when test="statusCode!=null and statusCode!=''">
+                    <if test="statusCode!=null and statusCode!='' ">
+                        <if test="statusCode==1">
+                            and orderlist.orderStep in (5,6,7)
+                        </if>
+                        <if test="statusCode==2">
+                            and orderlist.orderStep in (11,12,13)
+                        </if>
+                    </if>
+                </when>
+                <otherwise>
+                    <!--只查询装货和交货状态的物流信息-->
+                    and orderlist.orderStep in (5,6,7)
+                    or orderlist.orderStep in (11,12,13)
+                </otherwise>
+            </choose>
+            and orderlist.logisticsId=#{logisticsId}
+        </where>
+        group by orderlist.orderId
+    </select>
+
+    <!--根据订单id查询订单的物流信息-->
+    <select id="selectLogisticsInfoByOrderId" resultType="com.qtu.product_service.entity.WuliuBean" parameterType="java.lang.String">
+      select <include refid="logisticsInfoByOIdList"/> from bm_inordergoodslist ordergoodslist
+	  left join bm_goods goods on goods.id=ordergoodslist.goodsId
+      left join bm_inorderlist orderlist  on orderlist.orderId=ordergoodslist.orderId
+      where ordergoodslist.orderId=#{orderId}
+    </select>
+
+    <!--更新装货物流状态-->
+    <update id="updateZhuangHuoStatus">
+      update bm_inorderlist orderlist
+	  left join bm_inordergoodslist ordergoodslist on ordergoodslist.orderId=orderlist.orderId
+      set ordergoodslist.loadingNum=ordergoodslist.buyNum
+      where orderlist.logisticsId=#{logisticsId}
+      and ordergoodslist.orderId=#{orderId} and ordergoodslist.spId=#{spId}
+    </update>
+
+    <!--更新交货物流状态-->
+    <update id="updateJiaoHuoStatus">
+      update bm_inorderlist orderlist
+	  left join bm_inordergoodslist ordergoodslist on ordergoodslist.orderId=orderlist.orderId
+      set ordergoodslist.deliveryNum=ordergoodslist.buyNum
+      where orderlist.logisticsId=#{logisticsId}
+      and ordergoodslist.orderId=#{orderId} and ordergoodslist.spId=#{spId}
+    </update>
+
+    <!--更新物流状态码-->
+    <update id="updateStepCode">
+      update bm_inorderlist orderlist
+	  left join bm_inordergoodslist ordergoodslist on ordergoodslist.orderId=orderlist.orderId
+      set orderlist.orderStep=#{orderStep}
+      where orderlist.logisticsId=#{logisticsId} and ordergoodslist.orderId=#{orderId};
+    </update>
+
+</mapper>

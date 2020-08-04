@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qtu.product_service.mapper.GoodsInfoMapper">
+
+    <resultMap id="BaseResultMap" type="com.qtu.product_service.entity.GoodsInfoBean">
+        <!--商品表-->
+        <!--<result column="id" property="id" jdbcType="INTEGER"/>-->
+        <result column="goodsCode" property="goodsCode" jdbcType="VARCHAR"/>
+        <result column="goodsName" property="goodsName" jdbcType="VARCHAR"/>
+        <result column="warehouseCode" property="warehouseCode" jdbcType="VARCHAR"/>
+        <result column="categoryId" property="categoryId" jdbcType="INTEGER"/>
+        <result column="brandId" property="brandId" jdbcType="INTEGER"/>
+        <result column="goodsDetails" property="goodsDetails" jdbcType="VARCHAR"/>
+        <result column="goodsMark" property="goodsMark" jdbcType="VARCHAR"/>
+        <result column="isDeleted" property="isDeleted" jdbcType="INTEGER"/>
+
+        <!--品牌表-->
+        <result column="bname" property="bname" jdbcType="VARCHAR"/>
+        <result column="brandImg" property="brandImg" jdbcType="VARCHAR"/>
+
+        <!--商品详情表-->
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sname" property="sname" jdbcType="VARCHAR"/>
+        <result column="oldPrice" property="oldPrice" jdbcType="DECIMAL"/>
+        <result column="price" property="price" jdbcType="DECIMAL"/>
+        <result column="stock" property="stock" jdbcType="INTEGER"/>
+        <result column="warnStock" property="warnStock" jdbcType="INTEGER"/>
+        <result column="allSaled" property="allSaled" jdbcType="INTEGER"/>
+        <result column="currentMonth" property="currentMonth" jdbcType="INTEGER"/>
+        <result column="isShelves" property="isShelves" jdbcType="INTEGER"/>
+        <result column="isRecom" property="isRecom" jdbcType="INTEGER"/>
+        <result column="goodsImgUrl" property="goodsImgUrl" jdbcType="VARCHAR"/>
+        <result column="qualityPeriod" property="qualityPeriod" jdbcType="VARCHAR"/>
+
+        <!--供应商-->
+        <result column="mechanismName" property="mechanismName" jdbcType="VARCHAR"/>
+        <!--商品排序方式-->
+        <result column="zonghe" property="zonghe" jdbcType="INTEGER"/>
+        <result column="jiage" property="jiage" jdbcType="INTEGER"/>
+        <result column="xiaoliang" property="xiaoliang" jdbcType="INTEGER"/>
+        <!--分类名称-->
+        <result column="cname" property="cname" jdbcType="INTEGER"/>
+        <!--商品销量-->
+        <result column="buyNum" property="buyNum" jdbcType="INTEGER"/>
+    </resultMap>
+    <!--goods.id id,-->
+    <sql id="goodsInfoResult">
+        s.id id,goods.goodsCode goodsCode,goods.goodsName goodsName,goods.warehouseCode warehouseCode,
+        goods.categoryId categoryId,goods.brandId brandId,goods.goodsDetails goodsDetails,goods.goodsMark goodsMark,goods.isDeleted isDeleted,
+        brand.bname bname,brand.brandImg brandImg,s.sname sname,s.oldPrice oldPrice,s.price price,s.stock stock,s.warnStock warnStock,
+        s.allSaled allSaled,s.currentMonth currentMonth,s.isShelves isShelves,s.isRecom isRecom,s.goodsImgUrl goodsImgUrl,s.qualityPeriod qualityPeriod
+    </sql>
+    <sql id="mechanismInfo">
+        mechanism.mechanismName mechanismName
+    </sql>
+    <sql id="categoryInfo">
+        category.cname cname
+    </sql>
+    <sql id="goodsSaleNum">
+        sum(inorder.buyNum) buyNum
+    </sql>
+
+    <!--查询商品信息-->
+    <select id="selectGoodsInfo" resultType="com.qtu.product_service.entity.GoodsInfoBean" >
+      select <include refid="goodsInfoResult"/> from bm_goods goods
+	  left join bm_brand brand on goods.brandId=brand.id
+	  left join bm_specification s on s.goodsId=goods.id
+        <where>
+        <if test="bname!=null and bname!='' ">
+            or brand.bname=#{bname}
+        </if>
+        <if test="goodsName!=null and goodsName!='' ">
+           or goods.goodsName=#{goodsName}
+        </if>
+        </where>
+    </select>
+
+    <!--查询所有的父类目-->
+    <select id="selectAllPCategory" resultType="com.qtu.entity.Category">
+        select * from bm_category where parentId=0
+    </select>
+
+    <!--根据parentId查询子类目-->
+    <select id="selectChildCategory" resultType="com.qtu.entity.Category" parameterType="java.lang.Integer">
+        select * from bm_category
+        <where>
+            parentId=#{parentId}
+        </where>
+    </select>
+
+    <!--查询父类目所对应的商品-->
+    <select id="selectGoodsInfoByCateParentId" resultMap="BaseResultMap">
+        select <include refid="goodsInfoResult"/> from bm_goods goods
+	    left join bm_category category on category.id=goods.categoryId
+        left join bm_brand brand on brand.id=goods.brandId
+	    left join bm_specification s on s.goodsId=goods.id
+        where category.parentId=#{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectGoodsInfoByCateParentIds" resultMap="BaseResultMap">
+
+        select <include refid="goodsInfoResult"/> from bm_specification s
+        left join bm_goods goods on goods.id=s.goodsId
+        left join bm_brand brand on brand.id=goods.brandId
+        left join bm_category category on category.id=goods.categoryId
+        where 1=1
+        <if test="id!=null">
+            and category.parentId=#{id,jdbcType=INTEGER}
+        </if>
+        <if test="zonghe!=null">
+            order by goods.goodsCode desc
+        </if>
+        <if test="jiage!=null">
+            order by s.price desc
+        </if>
+        <if test="xiaoliang!=null">
+            order by s.allSaled desc
+        </if>
+
+    </select>
+
+
+    <select id="selectGoodsInfoByCateParentIdss" resultMap="BaseResultMap">
+
+        select <include refid="goodsInfoResult"/> from bm_specification s
+        left join bm_goods goods on goods.id=s.goodsId
+        left join bm_brand brand on brand.id=goods.brandId
+        left join bm_category category on category.id=goods.categoryId
+        where 1=1
+        <if test="id!=null">
+            and category.id=#{id,jdbcType=INTEGER}
+        </if>
+        <if test="zonghe!=null">
+            order by goods.goodsCode desc
+        </if>
+        <if test="jiage!=null">
+            order by s.price desc
+        </if>
+        <if test="xiaoliang!=null">
+            order by s.allSaled desc
+        </if>
+
+    </select>
+
+
+    <!--根据商品详情id查询商品详情-->
+    <select id="selectGoodsInfoBySid" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select <include refid="goodsInfoResult"/>,<include refid="mechanismInfo"/>,<include refid="categoryInfo"/>,
+        <include refid="goodsSaleNum"/>from bm_goods goods
+        left join bm_warehouse warehouse on warehouse.warehouseCode=goods.warehouseCode
+        left join sys_mechanism mechanism on mechanism.id=warehouse.mechanismid
+        left join bm_category category on category.id=goods.categoryId
+        left join bm_brand brand on brand.id=goods.brandId
+        left join bm_specification s on s.goodsId=goods.id
+        left join bm_inordergoodslist inorder on inorder.spId=s.id
+        where s.id=#{sid,jdbcType=INTEGER}
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <select id="selGoodsInfos" resultMap="BaseResultMap">
+        select go.* from(
+        select g.id id,g.goodsCode goodsCode,g.warehouseCode warehouseCode,g.categoryId,c.cname cname,
+        g.goodsName goodsName,b.bname bname,count(g.goodsCode) specificationNum,SUM(s.stock) stock,
+        s.isRecom isRecom,g.isDeleted isDeleted from bm_goods g
+        LEFT JOIN bm_brand b on g.brandId=b.id
+        LEFT JOIN bm_category c on g.categoryId=c.id
+        LEFT JOIN bm_specification s on g.id=s.goodsId
+        GROUP BY g.id
+        )as go
+        <where>
+            go.isDeleted=1
+            <if test="goodsCode!=null and goodsCode!='' ">
+                and go.goodsCode = #{goodsCode}
+            </if>
+            <if test="goodsName!=null and goodsName!='' ">
+                and go.goodsName like #{goodsName}
+            </if>
+            <if test="warehouseCode!=null and warehouseCode!='' ">
+                and go.warehouseCode = #{warehouseCode}
+            </if>
+            <if test="isRecom!=null ">
+                and go.isRecom = #{isRecom}
+            </if>
+            <choose>
+                <when test="category!=null and category!='' ">
+                    and go.categoryId = #{category}
+                </when>
+                <otherwise>
+                    <if test="categoryParent!=null and categoryParent!='' ">
+                        and go.categoryId in(
+                        select id from bm_category
+                        where parentId=#{categoryParent})
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+
+    </select>
+
+    <select id="selectByMany" resultMap="BaseResultMap">
+        select go.* from(
+        select g.id id,g.goodsCode goodsCode,g.warehouseCode warehouseCode,g.categoryId,c.cname cname,
+        g.goodsName goodsName,b.bname bname,count(g.goodsCode) specificationNum,SUM(s.stock) stock,
+        s.isRecom isRecom,g.isDeleted isDeleted from bm_goods g
+        LEFT JOIN bm_brand b on g.brandId=b.id
+        LEFT JOIN bm_category c on g.categoryId=c.id
+        LEFT JOIN bm_specification s on g.id=s.goodsId
+        GROUP BY g.id
+        )as go
+        <where>
+                go.isDeleted=0
+            <if test="goodsCode!=null and goodsCode!='' ">
+                and go.goodsCode = #{goodsCode}
+            </if>
+            <if test="goodsName!=null and goodsName!='' ">
+                and go.goodsName like concat('%',#{goodsName},'%')
+            </if>
+            <if test="warehouseCode!=null and warehouseCode!='' ">
+                and go.warehouseCode = #{warehouseCode}
+            </if>
+            <if test="isRecom!=null ">
+                and go.isRecom = #{isRecom}
+            </if>
+            <choose>
+                <when test="category!=null and category!='' ">
+                    and go.categoryId = #{category}
+                </when>
+                <otherwise>
+                    <if test="categoryParent!=null and categoryParent!='' ">
+                    and go.categoryId in(
+                    select id from bm_category
+                    where parentId=#{categoryParent})
+                    </if>
+                </otherwise>
+            </choose>
+        </where>
+        order by go.id desc
+    </select>
+    <update id="deleteById">
+        update bm_goods set isDeleted=1
+        where id=#{id};
+    </update>
+    <update id="deleteByIdCallBack">
+        update bm_goods set isDeleted=0
+        where id=#{id};
+    </update>
+    <update id="updateById">
+        update bm_specification set isRecom=#{num}
+        where goodsId=#{goodsId};
+    </update>
+</mapper>

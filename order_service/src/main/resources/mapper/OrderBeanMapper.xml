@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtu.order_service.mapper.OrderBeanMapper">
+
+
+    <select id="selectBySellerId" resultType="com.qtu.order_service.bean.OrderBean">
+        select o.orderId orderId,o.createTime createTime,o.amount amount,SUM(og.buyNum) buyNum,o.orderStep orderStep
+        from bm_inorderlist o
+        left JOIN bm_inordergoodslist og on o.orderId=og.orderId
+        <where>
+            o.sellerId=#{sellerId}
+            <if test="orderStep != null and orderStep != ''">
+                <if test="orderStep==1">
+                    and o.orderStep =1
+                </if>
+                <if test="orderStep==2">
+                    and o.orderStep in (2,3,4)
+                </if>
+                <if test="orderStep==3">
+                    and o.orderStep in (5,6,7,8,9,10,11,12)
+                </if>
+                <if test="orderStep==4">
+                    and o.orderStep =13
+                </if>
+            </if>
+        </where>
+        GROUP BY o.orderId
+    </select>
+    <select id="selectByOrderId" resultType="com.qtu.order_service.bean.OrderBean">
+    select o.orderId orderId,o.mark mark,o.createTime createTime,o.payType payType,o.amount amount,o.orderStep orderStep,o.deliveryFee deliveryFee,oa.contacter contacter,oa.tel tel,oa.address address from bm_inorderlist o
+    left JOIN bm_inordergoodslist og on o.orderId=og.orderId
+    left join bm_address oa on o.deliveryAddId=oa.addId
+    where o.orderId=#{orderId}
+    GROUP BY o.orderId;
+  </select>
+    <select id="selectGoodsByOrderId" resultType="com.qtu.order_service.bean.OrderBean">
+        select o.goodsName goodsName,o.goodsImg goodsImg,o.buyNum buyNum,o.price price from bm_inordergoodslist o
+        where o.orderId=#{orderId}
+    </select>
+     <update id="updateOrder">
+         update bm_inorderlist o set o.orderStep=0
+         where o.orderId=#{orderId}
+     </update>
+</mapper>

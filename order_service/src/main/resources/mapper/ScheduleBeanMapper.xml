@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtu.order_service.mapper.ScheduleBeanMapper">
+
+
+    <select id="selectByWareHouseId" resultType="com.qtu.order_service.bean.ScheduleBean">
+        select o.warehouserId warehouserId,o.orderId orderId,o.createTime createTime,SUM(og.buyNum) buyNum,o.amount amount,o.payType payType,o.orderStep orderStep,o.mark mark,o.deliveryFee deliveryFee,om.BusinessName BusinessName,oa.contacter contacter,oa.tel tel,oa.address address from bm_inorderlist o
+        left JOIN bm_inordergoodslist og on o.orderId=og.orderId
+        left join bm_address oa on o.deliveryAddId=oa.addId
+        LEFT JOIN bm_member om on o.sellerId=om.id
+        <where>
+            o.warehouserId=#{warehouserId}
+            <if test="orderStep != null and orderStep != ''">
+                <if test="orderStep==1">
+                    and o.orderStep in(2,3,4)
+                </if>
+                <if test="orderStep==2">
+                    and o.orderStep in (8,9,10)
+                </if>
+            </if>
+        </where>
+        GROUP BY o.orderId
+    </select>
+    <select id="selectOrderGoods" resultType="com.qtu.order_service.bean.ScheduleBean">
+        select o.orderStep orderStep,o.orderId orderId,o.payType payType,o.createTime createTime,o.mark mark,om.BusinessName BusinessName,oa.contacter contacter,oa.tel tel,oa.address address,o.amount amount,o.deliveryFee deliveryFee from bm_inorderlist o
+        left join bm_address oa on o.deliveryAddId=oa.addId
+        LEFT JOIN bm_member om on o.sellerId=om.id
+        where o.orderId=#{orderId}
+    </select>
+    <select id="selectGoodsList" resultType="com.qtu.order_service.bean.ScheduleBean">
+        select o.goodsName goodsName,o.sname sname,o.goodsImg goodsImg,o.price price,o.goodsId goodsId,o.buyNum buyNum,o.pickingNum pickingNum,o.examineNum examineNum from bm_inordergoodslist o
+        where o.orderId=#{orderId}
+    </select>
+    <update id="updateGoods">
+        update bm_inordergoodslist o set o.pickingNum=1
+        where o.goodsId=#{goodsId} and o.orderId=#{orderId}
+    </update>
+    <update id="updateGoodsTwo">
+        update bm_inordergoodslist o set o.examineNum=1
+        where o.goodsId=#{goodsId} and o.orderId=#{orderId}
+    </update>
+    <update id="updateOrderList">
+        update bm_inorderlist o set o.orderStep=#{orderStep}
+        where o.orderId=#{orderId}
+    </update>
+    <select id="selectTest" resultType="com.qtu.order_service.bean.ScheduleBean">
+        select o.orderStep orderStep from bm_inorderlist o
+        where o.orderId=#{orderId}
+    </select>
+</mapper>

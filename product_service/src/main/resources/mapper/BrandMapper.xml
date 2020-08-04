@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qtu.product_service.mapper.BrandMapper">
+    <resultMap id="BaseResultMap" type="com.qtu.entity.Brand">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="sort" property="sort" jdbcType="INTEGER"/>
+        <result column="bname" property="bname" jdbcType="VARCHAR"/>
+        <result column="brandImg" property="brandImg" jdbcType="VARCHAR"/>
+        <result column="mark" property="mark" jdbcType="VARCHAR"/>
+        <result column="createTime" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="isRecom" property="isRecom" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, sort, bname, brandImg, mark, createTime, isRecom
+  </sql>
+    <select id="selectAll" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+    select *
+    from bm_brand
+  </select>
+    <select id="selectBySelect" resultMap="BaseResultMap">
+        select *
+        from bm_brand
+        <where>
+            <if test="bname!=null and bname!='' ">
+                and bname like concat('%',#{bname},'%')
+            </if>
+            <if test="isRecom!=null ">
+                and isRecom = #{isRecom}
+            </if>
+        </where>
+    </select>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from bm_brand
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <update id="updateById">
+        update bm_brand set isRecom=#{num}
+        where id=#{id};
+    </update>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from bm_brand
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.qtu.entity.Brand">
+    insert into bm_brand (id, sort, bname, 
+      brandImg, mark, createTime, 
+      isRecom)
+    values (#{id,jdbcType=INTEGER}, #{sort,jdbcType=INTEGER}, #{bname,jdbcType=VARCHAR}, 
+      #{brandImg,jdbcType=VARCHAR}, #{mark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{isRecom,jdbcType=INTEGER})
+  </insert>
+    <insert id="insertSelective" parameterType="com.qtu.entity.Brand">
+        insert into bm_brand
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="sort != null">
+                sort,
+            </if>
+            <if test="bname != null">
+                bname,
+            </if>
+            <if test="brandImg != null">
+                brandImg,
+            </if>
+            <if test="mark != null">
+                mark,
+            </if>
+            <if test="createTime != null">
+                createTime,
+            </if>
+            <if test="isRecom != null">
+                isRecom,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="sort != null">
+                #{sort,jdbcType=INTEGER},
+            </if>
+            <if test="bname != null">
+                #{bname,jdbcType=VARCHAR},
+            </if>
+            <if test="brandImg != null">
+                #{brandImg,jdbcType=VARCHAR},
+            </if>
+            <if test="mark != null">
+                #{mark,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isRecom != null">
+                #{isRecom,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.qtu.entity.Brand">
+        update bm_brand
+        <set>
+            <if test="sort != null">
+                sort = #{sort,jdbcType=INTEGER},
+            </if>
+            <if test="bname != null">
+                bname = #{bname,jdbcType=VARCHAR},
+            </if>
+            <if test="brandImg != null">
+                brandImg = #{brandImg,jdbcType=VARCHAR},
+            </if>
+            <if test="mark != null">
+                mark = #{mark,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isRecom != null">
+                isRecom = #{isRecom,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.qtu.entity.Brand">
+    update bm_brand
+    set sort = #{sort,jdbcType=INTEGER},
+      bname = #{bname,jdbcType=VARCHAR},
+      brandImg = #{brandImg,jdbcType=VARCHAR},
+      mark = #{mark,jdbcType=VARCHAR},
+      createTime = #{createTime,jdbcType=TIMESTAMP},
+      isRecom = #{isRecom,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qtu.product_service.mapper.WarehouseInfoMapper" >
+
+  <resultMap id="BaseResultMap" type="com.qtu.product_service.entity.WareHouseBean" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="warehouseCode" property="warehouseCode" jdbcType="VARCHAR" />
+    <result column="mechanismid" property="mechanismid" jdbcType="INTEGER" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="employeeCode" property="employeeCode" jdbcType="VARCHAR" />
+    <result column="ename" property="ename" jdbcType="VARCHAR" />
+    <result column="mechanismName" property="mechanismName" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <sql id="Base_Column_List" >
+    warehouse.id id, warehouse.warehouseCode warehouseCode, warehouse.mechanismid mechanismid,
+    warehouse.address address,emp.employeeCode employeeCode,emp.ename ename, mechanism.mechanismName mechanismName
+  </sql>
+
+  <!--根据员工编号查询仓库信息-->
+  <select id="selectInfoByEmpCode" resultMap="BaseResultMap" parameterType="java.lang.String">
+    select <include refid="Base_Column_List"/> from bm_warehouse warehouse
+    left join sys_employee emp on emp.warehouseCode=warehouse.warehouseCode
+    left join sys_mechanism mechanism on mechanism.id=warehouse.mechanismid
+    where emp.employeeCode=#{employeeCode}
+  </select>
+
+
+</mapper>

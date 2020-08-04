@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qtu.product_service.mapper.GoodsMapper" >
+
+    <select id="ceshi" resultType="com.qtu.entity.Brand" parameterType="java.lang.String">
+        select bmb.id id, bmb.sort sort,bmb.bname bname,bmb.brandImg brandImg,bmb.mark mark from bm_goods bmg
+        LEFT JOIN bm_brand bmb on bmg.brandId = bmb.id
+        where bmb.bname= #{name}
+    </select>
+
+    <select id="seacrchBox" resultType="com.qtu.product_service.bean.search">
+        SELECT
+        box.*
+        FROM
+        (SELECT
+        bms.allSaled hotShopping,
+        bmb.bname ppName,
+        bmi.buyNum buyNum,
+        bms.sname ggName,
+        bms.id ggId,
+        bms.goodsImgUrl image,
+        bms.price price,
+        bmc.cname flName,
+        sysm.mechanismName jgName
+        FROM
+        bm_brand bmb
+
+        LEFT JOIN bm_goods bmg ON bmb.id = bmg.brandId
+        LEFT JOIN bm_inordergoodslist bmi ON bmg.id = bmi.goodsId
+        LEFT JOIN bm_specification bms ON bmg.id = bms.goodsId
+        LEFT JOIN bm_category bmc on bmc.id = bmg.categoryId
+        left join bm_warehouse bmw on bmw.warehouseCode = bmg.warehouseCode
+        LEFT JOIN sys_mechanism sysm on sysm.id = bmw.mechanismid
+        GROUP BY
+        bms.id
+        ) AS box
+        where box.ppName like concat('%',#{ppName},'%') or box.ggName like concat('%',#{ggName},'%')
+    </select>
+
+    <select id="getHotShopping" resultType="com.qtu.product_service.bean.search">
+        SELECT
+        box.*
+        FROM
+        (SELECT
+        bms.allSaled hotShopping,
+        bmb.bname ppName,
+        bmi.buyNum buyNum,
+        bms.sname ggName,
+        bms.id ggId,
+        bms.goodsImgUrl image,
+        bms.price price,
+        bmc.cname flName,
+        sysm.mechanismName jgName
+        FROM
+        bm_brand bmb
+
+        LEFT JOIN bm_goods bmg ON bmb.id = bmg.brandId
+        LEFT JOIN bm_inordergoodslist bmi ON bmg.id = bmi.goodsId
+        LEFT JOIN bm_specification bms ON bmg.id = bms.goodsId
+        LEFT JOIN bm_category bmc on bmc.id = bmg.categoryId
+        left join bm_warehouse bmw on bmw.warehouseCode = bmg.warehouseCode
+        LEFT JOIN sys_mechanism sysm on sysm.id = bmw.mechanismid
+        GROUP BY
+        bms.id
+        ) AS box
+        ORDER BY box.hotShopping DESC
+    </select>
+
+    <select id="getNewShopping" resultType="com.qtu.product_service.bean.search">
+        SELECT
+            box.*
+        FROM
+            (SELECT
+					bms.allSaled hotShopping,
+                    bmb.bname ppName,
+                    bmi.buyNum buyNum,
+                    bms.sname ggName,
+                    bms.id ggId,
+                    bms.goodsImgUrl image,
+                    bms.price price,
+					bmc.cname flName,
+					sysm.mechanismName jgName,
+					bms.productionDate dates
+                FROM
+                    bm_brand bmb
+
+                LEFT JOIN bm_goods bmg ON bmb.id = bmg.brandId
+                LEFT JOIN bm_inordergoodslist bmi ON bmg.id = bmi.goodsId
+                LEFT JOIN bm_specification bms ON bmg.id = bms.goodsId
+								LEFT JOIN bm_category bmc on bmc.id = bmg.categoryId
+								left join bm_warehouse bmw on bmw.warehouseCode = bmg.warehouseCode
+								LEFT JOIN sys_mechanism sysm on sysm.id = bmw.mechanismid
+                GROUP BY
+                    bms.id
+            ) AS box
+						 ORDER BY box.dates DESC
+    </select>
+    
+    <select id="oftenBuyList" resultType="com.qtu.product_service.bean.search">
+         SELECT
+        box.*
+        FROM
+        (SELECT
+        bms.allSaled hotShopping,
+        bmb.bname ppName,
+        bmi.buyNum buyNum,
+        bms.sname ggName,
+        bms.id ggId,
+        bms.goodsImgUrl image,
+        bms.price price,
+        bmc.cname flName,
+        sysm.mechanismName jgName
+        FROM
+        bm_brand bmb
+
+        LEFT JOIN bm_goods bmg ON bmb.id = bmg.brandId
+        LEFT JOIN bm_inordergoodslist bmi ON bmg.id = bmi.goodsId
+        LEFT JOIN bm_specification bms ON bmg.id = bms.goodsId
+        LEFT JOIN bm_category bmc on bmc.id = bmg.categoryId
+        left join bm_warehouse bmw on bmw.warehouseCode = bmg.warehouseCode
+        LEFT JOIN sys_mechanism sysm on sysm.id = bmw.mechanismid
+				LEFT JOIN bm_inorderlist bmin on bmin.orderId = bmi.orderId
+				LEFT JOIN bm_member bmm on bmm.id = bmin.sellerId
+				where bmm.tel = #{tel}
+        GROUP BY
+        bms.id
+
+        ) AS box
+				ORDER BY box.buyNum DESC
+    </select>
+
+    <select id="supplierShouYe" resultType="com.qtu.product_service.bean.Shop">
+
+        select bmme.BusinessName dpName,bmme.backImg dpImage,bmme.mapCode dpZuobiao,bmme.shopType dpLeiXing, sysem.warehouseCode ckName,bmwa.mapCode ckZuobiao
+        from  sys_employee sysem
+        LEFT JOIN bm_warehouse bmwa on sysem.warehouseCode = bmwa.warehouseCode
+        LEFT JOIN sys_mechanism sysme on sysme.id = bmwa.mechanismid
+        LEFT JOIN bm_sellermechanism bmse on bmse.mechanismId = sysme.id
+        LEFT JOIN bm_member bmme on bmme.id = bmse.sellerId
+        where bmme.state =1 and sysem.warehouseCode=#{ckName}
+GROUP BY
+        bmme.id
+    </select>
+
+
+    <select id="supplierShouYeWeiHeZuo" resultType="com.qtu.product_service.bean.Shop">
+
+        select bmme.BusinessName dpName,bmme.backImg dpImage,bmme.mapCode dpZuobiao,bmme.shopType dpLeiXing, sysem.warehouseCode ckName,bmwa.mapCode ckZuobiao
+        from  sys_employee sysem
+        LEFT JOIN bm_warehouse bmwa on sysem.warehouseCode = bmwa.warehouseCode
+        LEFT JOIN sys_mechanism sysme on sysme.id = bmwa.mechanismid
+        LEFT JOIN bm_sellermechanism bmse on bmse.mechanismId = sysme.id
+        LEFT JOIN bm_member bmme on bmme.id = bmse.sellerId
+        where bmme.state =0 and sysem.warehouseCode=#{ckName}
+GROUP BY
+        bmme.id
+    </select>
+    
+    <update id="updateHeZuoRelation" >
+        update bm_member set state = 1 where BusinessName = #{dpName}
+    </update>
+
+
+</mapper>

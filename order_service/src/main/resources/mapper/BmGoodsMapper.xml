@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qtu.order_service.mapper.BmGoodsMapper">
+
+  <select id="selectCartItemBySpecificationId" resultType="com.qtu.order_service.entity.CartItem">
+    SELECT bs.id, bs.sname goodsName, bs.price, bs.goodsImgUrl, sm.mechanismName, sm.mechanismCode, bs.goodsId, bs.stock
+    FROM bm_goods bg
+    LEFT JOIN bm_specification bs ON bg.id = bs.goodsId
+    LEFT JOIN bm_warehouse bw ON bw.warehouseCode = bg.warehouseCode
+    LEFT JOIN sys_mechanism sm ON sm.id = bw.mechanismid
+    WHERE bs.id = #{id}
+  </select>
+
+
+</mapper>

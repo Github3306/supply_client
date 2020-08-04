@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtu.order_service.mapper.OrderGoodsMapper">
+    <insert id="insert" parameterType="com.qtu.entity.BmInOrderGoodsList">
+    insert into bm_inordergoodslist (id, orderId, goodsId,
+      spId, sname, goodsName,
+      goodsImg, buyNum, price,
+      pickingNum, loadingNum, examineNum,
+      deliveryNum)
+    values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=VARCHAR}, #{goodsId,jdbcType=INTEGER},
+      #{spId,jdbcType=INTEGER}, #{sname,jdbcType=VARCHAR}, #{goodsName,jdbcType=VARCHAR},
+      #{goodsImg,jdbcType=VARCHAR}, #{buyNum,jdbcType=INTEGER}, #{price,jdbcType=DECIMAL},
+      #{pickingNum,jdbcType=INTEGER}, #{loadingNum,jdbcType=INTEGER}, #{examineNum,jdbcType=INTEGER},
+      #{deliveryNum,jdbcType=INTEGER})
+  </insert>
+</mapper>

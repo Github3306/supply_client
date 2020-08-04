@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qtu.product_service.mapper.Zswmapper">
+
+
+    <sql id="Base_Column_List">
+    id, mechanismCode, mechanismName, levelId, addvcd, password, tel, parentId, createTime,
+    isDeleted
+  </sql>
+
+    <select id="selectByPrimaryKey" resultType="com.qtu.entity.SysMechanism" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_mechanism
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <!--查询热门商品-->
+    <select id="selectHotProduct" resultType="com.qtu.product_service.entity.HotProduct">
+        SELECT goods.id,inordergoodslist.goodsimg,goods.goodsname,inordergoodslist.price FROM bm_inordergoodslist inordergoodslist
+        LEFT JOIN bm_goods goods ON goods.id = inordergoodslist.goodsId
+        LEFT JOIN bm_warehouse warehouse ON warehouse.warehouseCode = goods.warehouseCode
+        left JOIN bm_inorderlist inorderlist ON inordergoodslist.orderId = inorderlist.orderId
+        WHERE inordergoodslist.orderId IN
+        (SELECT inorderlist.orderid FROM bm_inorderlist inorderlist
+        LEFT JOIN bm_member member ON inorderlist.sellerId = member.id
+        ) group by goods.id order by SUM(buyNum) DESC LIMIT 0,3
+    </select>
+
+    <!--查询热门商品信息-->
+    <select id="selectHotProductInfo" resultType="com.qtu.product_service.entity.HotProductInfoBean">
+        select goods.id,SUM(buyNum) AS count,category.cname,brand.bname,mechanism.mechanismName,inordergoodslist.price,inordergoodslist.goodsimg,goods.goodsName
+        from bm_inorderlist inorderlist RIGHT JOIN bm_inordergoodslist inordergoodslist ON inorderlist.orderId=inordergoodslist.orderId
+        RIGHT  JOIN bm_goods goods on goods.id = inordergoodslist.goodsid
+        LEFT JOIN bm_category category ON category.id = goods.categoryid
+        LEFT JOIN bm_brand brand ON brand.id = goods.brandid
+        LEFT JOIN bm_sellermechanism  sellermechanism ON inorderlist.sellerid = sellermechanism.sellerid
+        LEFT JOIN sys_mechanism mechanism ON mechanism.id = sellermechanism.mechanismid WHERE goods.id=#{id}
+        GROUP BY goods.id
+    </select>
+
+    <!--查询所有的商品信息-->
+    <select id="selectProductInfo" resultType="com.qtu.product_service.entity.ProductInfoBean">
+      select SUM(buyNum) AS count,goods.id,inordergoodslist.price,inordergoodslist.goodsimg,goods.goodsName
+      from bm_inorderlist inorderlist RIGHT JOIN bm_inordergoodslist inordergoodslist ON inorderlist.orderId=inordergoodslist.orderId
+      RIGHT  JOIN bm_goods goods on goods.id = inordergoodslist.goodsid
+      LEFT JOIN bm_category category ON category.id = goods.categoryid
+      LEFT JOIN bm_brand brand ON brand.id = goods.brandid
+      LEFT JOIN bm_sellermechanism  sellermechanism ON inorderlist.sellerid = sellermechanism.sellerid
+      LEFT JOIN sys_mechanism mechanism ON mechanism.id = sellermechanism.mechanismid
+      GROUP BY goods.id
+    </select>
+
+    <!--新品推荐-->
+    <select id="selectNewProduct" resultType="com.qtu.product_service.entity.HotProduct">
+        SELECT goods.id,inordergoodslist.goodsimg,goods.goodsname,inordergoodslist.price FROM bm_inordergoodslist inordergoodslist
+        LEFT JOIN bm_goods goods ON goods.id = inordergoodslist.goodsId
+        LEFT JOIN bm_warehouse warehouse ON warehouse.warehouseCode = goods.warehouseCode
+        left JOIN bm_inorderlist inorderlist ON inordergoodslist.orderId = inorderlist.orderId
+        WHERE inordergoodslist.orderId IN
+        (SELECT inorderlist.orderid FROM bm_inorderlist inorderlist
+        LEFT JOIN bm_member member ON inorderlist.sellerId = member.id
+        ) group by goods.id order by goods.createTime DESC LIMIT 0,3
+    </select>
+
+    <select id="selectCategory" resultType="com.qtu.product_service.entity.BrandBean">
+        SELECT id,brandImg from bm_brand;
+    </select>
+    <!--根据品牌id查出来商品-->
+    <select id="selectInfoByCategory" resultType="com.qtu.product_service.entity.ProductInfoBean">
+            select SUM(buyNum) AS count,goods.id,inordergoodslist.price,inordergoodslist.goodsimg,goods.goodsName,inordergoodslist.spid as categoryId
+            from bm_inorderlist inorderlist RIGHT JOIN bm_inordergoodslist inordergoodslist ON inorderlist.orderId=inordergoodslist.orderId
+            RIGHT  JOIN bm_goods goods on goods.id = inordergoodslist.goodsid
+            LEFT JOIN bm_category category ON category.id = goods.categoryid
+            LEFT JOIN bm_brand brand ON brand.id = goods.brandid
+            LEFT JOIN bm_sellermechanism  sellermechanism ON inorderlist.sellerid = sellermechanism.sellerid
+            LEFT JOIN sys_mechanism mechanism ON mechanism.id = sellermechanism.mechanismid
+            WHERE brand.id=#{id}
+            GROUP BY goods.id
+    </select>
+
+    <!--统计-->
+    <select id="selectStatistics" resultType="com.qtu.product_service.entity.StatisticsBean">
+        SELECT SUM(amount)+SUM(deliveryFee) AS zmoney,COUNT(inorderlist.orderId) AS orderCount,
+        SUM(amount) AS cgmoney,SUM(deliveryFee)AS wlMoney,SUM(buyNum) AS buyNum
+        FROM sys_employee employee
+        LEFT JOIN bm_inorderlist inorderlist ON inorderlist.warehouserId = employee.id
+        LEFT JOIN bm_inordergoodslist inordergoodlist ON inordergoodlist.orderId = inorderlist.orderId
+        <where>
+            and employee.token = #{token}
+            <if test="orderStep == '1'.toString() or orderStep == '2'.toString()">
+                AND inorderlist.orderStep != #{orderStep}
+            </if>
+            <if test="orderStep == '3'.toString()">
+                AND inorderlist.orderStep !=3
+            </if>
+            <if test="orderStep == '4'.toString()">
+                AND inorderlist.orderStep !=1
+            </if>
+            <if test="time1 != null and time2 !=null">
+                AND inorderlist.payTime BETWEEN #{time1} AND #{time2}
+            </if>
+            <if test="time1 != null and time2 == null">
+                and inorderlist.payTime = #{time1}
+            </if>
+        </where>
+        GROUP BY employee.token
+    </select>
+
+
+    <!--业绩管理====仓库-->
+    <select id="selectCk" resultType="com.qtu.product_service.entity.StatisticsBean">
+        SELECT SUM(amount)+SUM(deliveryFee) AS zmoney,COUNT(inorderlist.orderId) AS orderCount,
+        SUM(amount) AS cgmoney,SUM(deliveryFee)AS wlMoney,SUM(buyNum) AS buyNum
+        FROM bm_warehouse  warehouse
+        LEFT JOIN bm_inorderlist inorderlist ON inorderlist.warehouserId = warehouse.id
+        LEFT JOIN sys_employee employee ON employee.warehouseCode = warehouse.warehouseCode
+        LEFT JOIN bm_inordergoodslist inordergoodlist ON inordergoodlist.orderId = inorderlist.orderId
+        WHERE employee.token = #{token}
+        AND inorderlist.payTime BETWEEN #{time1} AND #{time2}
+        GROUP BY warehouse.warehouseCode
+    </select>
+
+    <!--业绩管理=====客户-->
+    <select id="selectKh" resultType="com.qtu.product_service.entity.StatisticsBean">
+        SELECT COUNT(DISTINCT(member.id)) AS orderCount  FROM bm_member member
+        INNER JOIN sys_mechanism mechanism ON mechanism.id =(
+        SELECT  mechanism.id FROM bm_warehouse warehouse
+        RIGHT JOIN sys_employee employee ON warehouse.warehouseCode = employee.warehouseCode
+        RIGHT JOIN sys_mechanism mechanism ON mechanism.id = warehouse.mechanismid
+        WHERE employee.token = #{token})
+        LEFT JOIN bm_sellermechanism sellermechanism ON sellermechanism.sellerid = member.id
+        <if test="condition == '1'.toString">
+            INNER JOIN bm_inorderlist inorderlist ON inorderlist.sellerId = member.id
+        </if>
+        <if test="deleted == '0'.toString">
+            where sellermechanism.isDeleted = 0
+            AND member.addTime BETWEEN #{time1} AND #{time2}
+            GROUP BY mechanism.mechanismCode
+        </if>
+        <if test= "deleted == '1'.toString">
+            where sellermechanism.isDeleted = 1
+            AND member.addTime BETWEEN #{time1} AND #{time2}
+            GROUP BY mechanism.mechanismCode
+        </if>
+    </select>
+
+    <!--统计商品销售额-->
+    <select id="selectProductCount" resultType="com.qtu.product_service.entity.ProductCountZswBean">
+        SELECT goods.goodsName AS goodsName,SUM(inordergoodlist.buyNum) AS buyNum,SUM(inorderlist.amount) AS amount
+        from bm_goods goods
+        INNER JOIN bm_inordergoodslist inordergoodlist ON inordergoodlist.goodsId = goods.id
+        INNER JOIN bm_inorderlist inorderlist ON inorderlist.orderId = inordergoodlist.orderId
+         where inorderlist.payTime BETWEEN #{time1} AND #{time2}
+        GROUP BY goods.id
+    </select>
+
+    <!--查询goodsStatistics的订单信息-->
+    <select id="selectProductCount2"  resultType="com.qtu.product_service.entity.ProductCountZswBean">
+        SELECT goods.goodsName AS goodsName,SUM(inordergoodlist.buyNum) AS buyNum,SUM(inorderlist.amount) AS amount
+        from bm_goods goods
+        INNER JOIN bm_inordergoodslist inordergoodlist ON inordergoodlist.goodsId = goods.id
+        INNER JOIN bm_inorderlist inorderlist ON inorderlist.orderId = inordergoodlist.orderId
+        <where>
+            <if test="time1 != null and time2 !=null and time3 == null">
+                AND inorderlist.payTime BETWEEN #{time1} AND #{time2}
+            </if>
+            <if test="time3 != null">
+                AND inorderlist.payTime BETWEEN #{time3} AND #{time4}
+            </if>
+            <if test="time1 != null and time2 == null and time3 == null">
+                AND inorderlist.payTime = #{time1}
+            </if>
+            <if test="condition == '0'.toString">
+                AND (inorderlist.orderState = 0 or inorderlist.orderState = 3  or inorderlist.orderState = 4)
+            </if>
+            <if test="condition == '1'.toString">
+               AND (inorderlist.orderState = 1 or inorderlist.orderState = 2)
+            </if>
+        </where>
+        GROUP BY goods.id
+    </select>
+</mapper>

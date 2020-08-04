@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qtu.product_service.mapper.BmGoodsMapper" >
+  <resultMap id="BaseResultMap" type="com.qtu.entity.BmGoods" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="goodsCode" property="goodsCode" jdbcType="VARCHAR" />
+    <result column="goodsName" property="goodsName" jdbcType="VARCHAR" />
+    <result column="warehouseCode" property="warehouseCode" jdbcType="VARCHAR" />
+    <result column="categoryId" property="categoryId" jdbcType="INTEGER" />
+    <result column="brandId" property="brandId" jdbcType="INTEGER" />
+    <result column="sort" property="sort" jdbcType="INTEGER" />
+    <result column="goodsDetails" property="goodsDetails" jdbcType="VARCHAR" />
+    <result column="createTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="isDeleted" property="isDeleted" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.qtu.entity.BmGoods" extends="BaseResultMap" >
+    <result column="goodsMark" property="goodsMark" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, goodsCode, goodsName, warehouseCode, categoryId, brandId, sort, goodsDetails, 
+    createTime, isDeleted
+  </sql>
+  <sql id="Blob_Column_List" >
+    goodsMark
+  </sql>
+
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from bm_goods
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from bm_goods
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <insert id="insert" parameterType="com.qtu.entity.BmGoods" >
+    insert into bm_goods (id, goodsCode, goodsName, 
+      warehouseCode, categoryId, brandId, 
+      sort, goodsDetails, createTime, 
+      isDeleted, goodsMark)
+    values (#{id,jdbcType=INTEGER}, #{goodsCode,jdbcType=VARCHAR}, #{goodsName,jdbcType=VARCHAR}, 
+      #{warehouseCode,jdbcType=VARCHAR}, #{categoryId,jdbcType=INTEGER}, #{brandId,jdbcType=INTEGER}, 
+      #{sort,jdbcType=INTEGER}, #{goodsDetails,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{isDeleted,jdbcType=INTEGER}, #{goodsMark,jdbcType=LONGVARCHAR})
+  </insert>
+
+  <insert id="insertSelective" parameterType="com.qtu.entity.BmGoods" >
+    insert into bm_goods
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="goodsCode != null" >
+        goodsCode,
+      </if>
+      <if test="goodsName != null" >
+        goodsName,
+      </if>
+      <if test="warehouseCode != null" >
+        warehouseCode,
+      </if>
+      <if test="categoryId != null" >
+        categoryId,
+      </if>
+      <if test="brandId != null" >
+        brandId,
+      </if>
+      <if test="sort != null" >
+        sort,
+      </if>
+      <if test="goodsDetails != null" >
+        goodsDetails,
+      </if>
+      <if test="createTime != null" >
+        createTime,
+      </if>
+      <if test="isDeleted != null" >
+        isDeleted,
+      </if>
+      <if test="goodsMark != null" >
+        goodsMark,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="goodsCode != null" >
+        #{goodsCode,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsName != null" >
+        #{goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="warehouseCode != null" >
+        #{warehouseCode,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryId != null" >
+        #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="brandId != null" >
+        #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="sort != null" >
+        #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="goodsDetails != null" >
+        #{goodsDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="goodsMark != null" >
+        #{goodsMark,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.qtu.entity.BmGoods" >
+    update bm_goods
+    <set >
+      <if test="goodsCode != null" >
+        goodsCode = #{goodsCode,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsName != null" >
+        goodsName = #{goodsName,jdbcType=VARCHAR},
+      </if>
+      <if test="warehouseCode != null" >
+        warehouseCode = #{warehouseCode,jdbcType=VARCHAR},
+      </if>
+      <if test="categoryId != null" >
+        categoryId = #{categoryId,jdbcType=INTEGER},
+      </if>
+      <if test="brandId != null" >
+        brandId = #{brandId,jdbcType=INTEGER},
+      </if>
+      <if test="sort != null" >
+        sort = #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="goodsDetails != null" >
+        goodsDetails = #{goodsDetails,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isDeleted != null" >
+        isDeleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="goodsMark != null" >
+        goodsMark = #{goodsMark,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.qtu.entity.BmGoods" >
+    update bm_goods
+    set goodsCode = #{goodsCode,jdbcType=VARCHAR},
+      goodsName = #{goodsName,jdbcType=VARCHAR},
+      warehouseCode = #{warehouseCode,jdbcType=VARCHAR},
+      categoryId = #{categoryId,jdbcType=INTEGER},
+      brandId = #{brandId,jdbcType=INTEGER},
+      sort = #{sort,jdbcType=INTEGER},
+      goodsDetails = #{goodsDetails,jdbcType=VARCHAR},
+      createTime = #{createTime,jdbcType=TIMESTAMP},
+      isDeleted = #{isDeleted,jdbcType=INTEGER},
+      goodsMark = #{goodsMark,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.qtu.entity.BmGoods" >
+    update bm_goods
+    set goodsCode = #{goodsCode,jdbcType=VARCHAR},
+      goodsName = #{goodsName,jdbcType=VARCHAR},
+      warehouseCode = #{warehouseCode,jdbcType=VARCHAR},
+      categoryId = #{categoryId,jdbcType=INTEGER},
+      brandId = #{brandId,jdbcType=INTEGER},
+      sort = #{sort,jdbcType=INTEGER},
+      goodsDetails = #{goodsDetails,jdbcType=VARCHAR},
+      createTime = #{createTime,jdbcType=TIMESTAMP},
+      isDeleted = #{isDeleted,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

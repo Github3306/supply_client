@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qtu.user_service.mapper.BmAddressMapper" >
+  <resultMap id="BaseResultMap" type="com.qtu.entity.BmAddress" >
+    <id column="addId" property="addId" jdbcType="INTEGER" />
+    <result column="sellerId" property="sellerId" jdbcType="INTEGER" />
+    <result column="contacter" property="contacter" jdbcType="VARCHAR" />
+    <result column="tel" property="tel" jdbcType="VARCHAR" />
+    <result column="mainAddress" property="mainAddress" jdbcType="VARCHAR" />
+    <result column="address" property="address" jdbcType="VARCHAR" />
+    <result column="isDefault" property="isDefault" jdbcType="INTEGER" />
+    <result column="isDeleted" property="isDeleted" jdbcType="INTEGER" />
+    <result column="lng" property="lng" jdbcType="VARCHAR" />
+    <result column="lat" property="lat" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    addId, sellerId, contacter, tel, mainAddress, address, isDefault, isDeleted, lng, 
+    lat
+  </sql>
+
+<!--  <update id="updateDefault" parameterType="java.lang.Integer">-->
+<!--    UPDATE bm_address-->
+<!--    SET isDefault = 1-->
+<!--    WHERE addId = #{addId,jdbcType=INTEGER}-->
+<!--  </update>-->
+  <select id="selectByToken" resultMap="BaseResultMap" >
+    select s1.*
+    from bm_address s1
+    left join bm_member s2 on s2.id = s1.sellerId
+    where s2.token = #{token,jdbcType=VARCHAR}
+    and s1.isDefault = 1
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from bm_address
+    where addId = #{addId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from bm_address
+    where addId = #{addId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.qtu.entity.BmAddress" >
+    insert into bm_address (addId, sellerId, contacter, 
+      tel, mainAddress, address, 
+      isDefault, isDeleted, lng, 
+      lat)
+    values (#{addId,jdbcType=INTEGER}, #{sellerId,jdbcType=INTEGER}, #{contacter},
+      #{tel,jdbcType=VARCHAR}, #{mainAddress}, #{address},
+      #{isDefault,jdbcType=INTEGER}, #{isDeleted,jdbcType=INTEGER}, #{lng,jdbcType=VARCHAR}, 
+      #{lat,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.qtu.entity.BmAddress" >
+    insert into bm_address
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="addId != null" >
+        addId,
+      </if>
+      <if test="sellerId != null" >
+        sellerId,
+      </if>
+      <if test="contacter != null" >
+        contacter,
+      </if>
+      <if test="tel != null" >
+        tel,
+      </if>
+      <if test="mainAddress != null" >
+        mainAddress,
+      </if>
+      <if test="address != null" >
+        address,
+      </if>
+      <if test="isDefault != null" >
+        isDefault,
+      </if>
+      <if test="isDeleted != null" >
+        isDeleted,
+      </if>
+      <if test="lng != null" >
+        lng,
+      </if>
+      <if test="lat != null" >
+        lat,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="addId != null" >
+        #{addId,jdbcType=INTEGER},
+      </if>
+      <if test="sellerId != null" >
+        #{sellerId,jdbcType=INTEGER},
+      </if>
+      <if test="contacter != null" >
+        #{contacter,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null" >
+        #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="mainAddress != null" >
+        #{mainAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isDefault != null" >
+        #{isDefault,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="lng != null" >
+        #{lng,jdbcType=VARCHAR},
+      </if>
+      <if test="lat != null" >
+        #{lat,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.qtu.entity.BmAddress" >
+    update bm_address
+    <set >
+      <if test="sellerId != null" >
+        sellerId = #{sellerId,jdbcType=INTEGER},
+      </if>
+      <if test="contacter != null" >
+        contacter = #{contacter,jdbcType=VARCHAR},
+      </if>
+      <if test="tel != null" >
+        tel = #{tel,jdbcType=VARCHAR},
+      </if>
+      <if test="mainAddress != null" >
+        mainAddress = #{mainAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        address = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isDefault != null" >
+        isDefault = #{isDefault,jdbcType=INTEGER},
+      </if>
+      <if test="isDeleted != null" >
+        isDeleted = #{isDeleted,jdbcType=INTEGER},
+      </if>
+      <if test="lng != null" >
+        lng = #{lng,jdbcType=VARCHAR},
+      </if>
+      <if test="lat != null" >
+        lat = #{lat,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where addId = #{addId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.qtu.entity.BmAddress" >
+    update bm_address
+    set sellerId = #{sellerId,jdbcType=INTEGER},
+      contacter = #{contacter,jdbcType=VARCHAR},
+      tel = #{tel,jdbcType=VARCHAR},
+      mainAddress = #{mainAddress,jdbcType=VARCHAR},
+      address = #{address,jdbcType=VARCHAR},
+      isDefault = #{isDefault,jdbcType=INTEGER},
+      isDeleted = #{isDeleted,jdbcType=INTEGER},
+      lng = #{lng,jdbcType=VARCHAR},
+      lat = #{lat,jdbcType=VARCHAR}
+    where addId = #{addId,jdbcType=INTEGER}
+  </update>
+
+<select id="listBySellerId" resultMap="BaseResultMap">
+  select <include refid="Base_Column_List"/>
+  from bm_address
+  where sellerId = #{SellerId,jdbcType=INTEGER}
+</select>
+
+
+</mapper>

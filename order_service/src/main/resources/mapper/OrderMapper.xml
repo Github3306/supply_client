@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qtu.order_service.mapper.OrderMapper">
+    <resultMap id="BaseResultMap" type="com.qtu.entity.BmInOrderList">
+        <id column="orderId" jdbcType="VARCHAR" property="orderId"/>
+        <result column="sellerId" jdbcType="INTEGER" property="sellerId"/>
+        <result column="deliveryFee" jdbcType="DECIMAL" property="deliveryFee"/>
+        <result column="amount" jdbcType="DECIMAL" property="amount"/>
+        <result column="payType" jdbcType="INTEGER" property="payType"/>
+        <result column="orderStep" jdbcType="INTEGER" property="orderStep"/>
+        <result column="deliveryAddId" jdbcType="VARCHAR" property="deliveryAddId"/>
+        <result column="createTime" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="payTime" jdbcType="TIMESTAMP" property="payTime"/>
+        <result column="orderState" jdbcType="INTEGER" property="orderState"/>
+        <result column="warehouserId" jdbcType="INTEGER" property="warehouserId"/>
+        <result column="logisticsId" jdbcType="INTEGER" property="logisticsId"/>
+        <result column="mark" jdbcType="VARCHAR" property="mark"/>
+        <result column="endTime" jdbcType="TIMESTAMP" property="endTime"/>
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.qtu.entity.BmInOrderList">
+        <result column="orderStepRecord" jdbcType="LONGVARCHAR" property="orderStepRecord"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    orderId, sellerId, deliveryFee, amount, payType, orderStep, deliveryAddId, createTime,
+    payTime, orderState, warehouserId, logisticsId, mark, endTime
+  </sql>
+
+    <sql id="Blob_Column_List">
+    orderStepRecord
+  </sql>
+
+    <insert id="insert" parameterType="com.qtu.entity.BmInOrderList">
+    insert into bm_inorderlist (orderId, sellerId, deliveryFee,
+      amount, payType, orderStep,
+      deliveryAddId, createTime, payTime,
+      orderState, warehouserId, logisticsId,
+      mark, endTime, orderStepRecord
+      )
+    values (#{orderId,jdbcType=VARCHAR}, #{sellerId,jdbcType=INTEGER}, #{deliveryFee,jdbcType=DECIMAL},
+      #{amount,jdbcType=DECIMAL}, #{payType,jdbcType=INTEGER}, #{orderStep,jdbcType=INTEGER},
+      #{deliveryAddId,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{payTime,jdbcType=TIMESTAMP},
+      #{orderState,jdbcType=INTEGER}, #{warehouserId,jdbcType=INTEGER}, #{logisticsId,jdbcType=INTEGER},
+      #{mark,jdbcType=VARCHAR}, #{endTime,jdbcType=TIMESTAMP}, #{orderStepRecord,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+
+    <select id="selectByOrderId" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List" />
+        ,
+        <include refid="Blob_Column_List" />
+        from bm_inorderlist
+        where orderId = #{orderId,jdbcType=VARCHAR}
+    </select>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.qtu.entity.BmInOrderList">
+        update bm_inorderlist
+        <set>
+            <if test="sellerId != null">
+                sellerId = #{sellerId,jdbcType=INTEGER},
+            </if>
+            <if test="deliveryFee != null">
+                deliveryFee = #{deliveryFee,jdbcType=DECIMAL},
+            </if>
+            <if test="amount != null">
+                amount = #{amount,jdbcType=DECIMAL},
+            </if>
+            <if test="payType != null">
+                payType = #{payType,jdbcType=INTEGER},
+            </if>
+            <if test="orderStep != null">
+                orderStep = #{orderStep,jdbcType=INTEGER},
+            </if>
+            <if test="deliveryAddId != null">
+                deliveryAddId = #{deliveryAddId,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="payTime != null">
+                payTime = #{payTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="orderState != null">
+                orderState = #{orderState,jdbcType=INTEGER},
+            </if>
+            <if test="warehouserId != null">
+                warehouserId = #{warehouserId,jdbcType=INTEGER},
+            </if>
+            <if test="logisticsId != null">
+                logisticsId = #{logisticsId,jdbcType=INTEGER},
+            </if>
+            <if test="mark != null">
+                mark = #{mark,jdbcType=VARCHAR},
+            </if>
+            <if test="endTime != null">
+                endTime = #{endTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="orderStepRecord != null">
+                orderStepRecord = #{orderStepRecord,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where orderId = #{orderId,jdbcType=VARCHAR}
+    </update>
+</mapper>
